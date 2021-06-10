@@ -1,0 +1,3 @@
+rootProject.name = "view-track"
+include ':app'
+include ':lib'
