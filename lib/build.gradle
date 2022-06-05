@@ -5,7 +5,7 @@ plugins {
 
 def libGroupId = "com.sd.lib.android"
 def libArtifactId = "view-track"
-def libVersionName = "1.2.0-beta02"
+def libVersionName = "1.2.0-beta03"
 
 android {
     compileSdk 32
