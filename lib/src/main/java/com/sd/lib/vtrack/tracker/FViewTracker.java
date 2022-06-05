@@ -1,27 +1,25 @@
 package com.sd.lib.vtrack.tracker;
 
 import android.view.View;
-import android.view.ViewParent;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import java.lang.ref.WeakReference;
+import com.sd.lib.vtrack.tracker.location.WeakSourceViewLocationInfo;
+import com.sd.lib.vtrack.tracker.location.WeakViewLocationInfo;
 
 /**
  * view的位置追踪
  */
 public class FViewTracker implements ViewTracker {
-    private WeakReference<View> mSource;
-    private WeakReference<View> mTarget;
-
+    private SourceLocationInfo mSourceLocationInfo;
     private LocationInfo mTargetLocationInfo;
 
     private final int[] mLocationSourceParent = {0, 0};
     private final int[] mLocationTarget = {0, 0};
 
-    private int mX;
-    private int mY;
+    private Integer mX = 0;
+    private Integer mY = 0;
     private Position mPosition = Position.TopRight;
 
     private Callback mCallback;
@@ -33,24 +31,57 @@ public class FViewTracker implements ViewTracker {
 
     @Override
     public void setSource(@Nullable View source) {
-        final View old = getSource();
-        if (old != source) {
-            mSource = source == null ? null : new WeakReference<>(source);
-            if (mCallback != null) {
-                mCallback.onSourceChanged(old, source);
-            }
+        if (!(mSourceLocationInfo instanceof ViewLocationInfo)) {
+            mSourceLocationInfo = new WeakSourceViewLocationInfo() {
+                @Override
+                protected void onViewChanged(View old, View view) {
+                    super.onViewChanged(old, view);
+                    if (mCallback != null) {
+                        mCallback.onSourceChanged(old, source);
+                    }
+                }
+            };
         }
+        ((ViewLocationInfo) mSourceLocationInfo).setView(source);
     }
 
     @Override
     public void setTarget(@Nullable View target) {
-        final View old = getTarget();
-        if (old != target) {
-            mTarget = target == null ? null : new WeakReference<>(target);
-            if (mCallback != null) {
-                mCallback.onTargetChanged(old, target);
-            }
+        if (!(mTargetLocationInfo instanceof ViewLocationInfo)) {
+            mTargetLocationInfo = new WeakViewLocationInfo() {
+                @Override
+                protected void onViewChanged(View old, View view) {
+                    super.onViewChanged(old, view);
+                    if (mCallback != null) {
+                        mCallback.onTargetChanged(old, view);
+                    }
+                }
+            };
         }
+        ((ViewLocationInfo) mTargetLocationInfo).setView(target);
+    }
+
+    @Nullable
+    @Override
+    public View getSource() {
+        if (mSourceLocationInfo instanceof ViewLocationInfo) {
+            return ((ViewLocationInfo) mSourceLocationInfo).getView();
+        }
+        return null;
+    }
+
+    @Nullable
+    @Override
+    public View getTarget() {
+        if (mTargetLocationInfo instanceof ViewLocationInfo) {
+            return ((ViewLocationInfo) mTargetLocationInfo).getView();
+        }
+        return null;
+    }
+
+    @Override
+    public void setSourceLocationInfo(SourceLocationInfo locationInfo) {
+        mSourceLocationInfo = locationInfo;
     }
 
     @Override
@@ -63,50 +94,34 @@ public class FViewTracker implements ViewTracker {
         mPosition = position;
     }
 
-    @Nullable
-    @Override
-    public View getSource() {
-        return mSource == null ? null : mSource.get();
-    }
-
-    @Nullable
-    @Override
-    public View getTarget() {
-        return mTarget == null ? null : mTarget.get();
-    }
-
     @Override
     public final boolean update() {
         final Callback callback = mCallback;
-        if (callback == null) {
-            return false;
-        }
+        if (callback == null) return false;
 
-        final View source = getSource();
-        final View target = getTarget();
-        if (source == null || target == null) {
-            return false;
-        }
+        // check null
+        final SourceLocationInfo source = mSourceLocationInfo;
+        if (source == null) return false;
 
+        final LocationInfo target = mTargetLocationInfo;
+        if (target == null) return false;
+
+        // check canUpdate
         if (!callback.canUpdate(source, target)) {
             return false;
         }
 
-        final ViewParent sourceParent = source.getParent();
-        if (!(sourceParent instanceof View)) {
-            return false;
-        }
+        // check isReady
+        if (!source.isReady()) return false;
+        if (!target.isReady()) return false;
 
-        if (!source.isAttachedToWindow() || !target.isAttachedToWindow()) {
-            return false;
-        }
+        // check parent
+        final LocationInfo sourceParent = source.getParent();
+        if (sourceParent == null) return false;
+        if (!sourceParent.isReady()) return false;
 
-        if (source.getWidth() <= 0 || source.getHeight() <= 0) {
-            return false;
-        }
-
-        ((View) sourceParent).getLocationOnScreen(mLocationSourceParent);
-        target.getLocationOnScreen(mLocationTarget);
+        sourceParent.getCoordinate(mLocationSourceParent);
+        target.getCoordinate(mLocationTarget);
 
         switch (mPosition) {
             case TopLeft:
@@ -161,11 +176,11 @@ public class FViewTracker implements ViewTracker {
         return mLocationTarget[0] - mLocationSourceParent[0];
     }
 
-    private int getX_alignRight(View source, View target) {
+    private int getX_alignRight(LocationInfo source, LocationInfo target) {
         return getX_alignLeft() + (target.getWidth() - source.getWidth());
     }
 
-    private int getX_alignCenter(View source, View target) {
+    private int getX_alignCenter(LocationInfo source, LocationInfo target) {
         return getX_alignLeft() + (target.getWidth() - source.getWidth()) / 2;
     }
 
@@ -173,124 +188,83 @@ public class FViewTracker implements ViewTracker {
         return mLocationTarget[1] - mLocationSourceParent[1];
     }
 
-    private int getY_alignBottom(View source, View target) {
+    private int getY_alignBottom(LocationInfo source, LocationInfo target) {
         return getY_alignTop() + (target.getHeight() - source.getHeight());
     }
 
-    private int getY_alignCenter(View source, View target) {
+    private int getY_alignCenter(LocationInfo source, LocationInfo target) {
         return getY_alignTop() + (target.getHeight() - source.getHeight()) / 2;
     }
 
     //---------- position start----------
 
-    private void layoutTopLeft(View source, View target) {
+    private void layoutTopLeft(LocationInfo source, LocationInfo target) {
         mX = getX_alignLeft();
         mY = getY_alignTop();
     }
 
-    private void layoutTopCenter(View source, View target) {
+    private void layoutTopCenter(LocationInfo source, LocationInfo target) {
         mX = getX_alignCenter(source, target);
         mY = getY_alignTop();
     }
 
-    private void layoutTopRight(View source, View target) {
+    private void layoutTopRight(LocationInfo source, LocationInfo target) {
         mX = getX_alignRight(source, target);
         mY = getY_alignTop();
     }
 
 
-    private void layoutLeftCenter(View source, View target) {
+    private void layoutLeftCenter(LocationInfo source, LocationInfo target) {
         mX = getX_alignLeft();
         mY = getY_alignCenter(source, target);
     }
 
-    private void layoutCenter(View source, View target) {
+    private void layoutCenter(LocationInfo source, LocationInfo target) {
         mX = getX_alignCenter(source, target);
         mY = getY_alignCenter(source, target);
     }
 
-    private void layoutRightCenter(View source, View target) {
+    private void layoutRightCenter(LocationInfo source, LocationInfo target) {
         mX = getX_alignRight(source, target);
         mY = getY_alignCenter(source, target);
     }
 
 
-    private void layoutBottomLeft(View source, View target) {
+    private void layoutBottomLeft(LocationInfo source, LocationInfo target) {
         mX = getX_alignLeft();
         mY = getY_alignBottom(source, target);
     }
 
-    private void layoutBottomCenter(View source, View target) {
+    private void layoutBottomCenter(LocationInfo source, LocationInfo target) {
         mX = getX_alignCenter(source, target);
         mY = getY_alignBottom(source, target);
     }
 
-    private void layoutBottomRight(View source, View target) {
+    private void layoutBottomRight(LocationInfo source, LocationInfo target) {
         mX = getX_alignRight(source, target);
         mY = getY_alignBottom(source, target);
     }
 
 
-    private void layoutLeft(View source, View target) {
+    private void layoutLeft(LocationInfo source, LocationInfo target) {
         mX = getX_alignLeft();
-        mY = source.getTop();
+        mY = null;
     }
 
-    private void layoutTop(View source, View target) {
-        mX = source.getLeft();
+    private void layoutTop(LocationInfo source, LocationInfo target) {
+        mX = null;
         mY = getY_alignTop();
     }
 
-    private void layoutRight(View source, View target) {
+    private void layoutRight(LocationInfo source, LocationInfo target) {
         mX = getX_alignRight(source, target);
-        mY = source.getTop();
+        mY = null;
     }
 
-    private void layoutBottom(View source, View target) {
-        mX = source.getLeft();
+    private void layoutBottom(LocationInfo source, LocationInfo target) {
+        mX = null;
         mY = getY_alignBottom(source, target);
     }
 
     //---------- position end----------
-
-    private static class InternalTargetLocationInfo implements LocationInfo {
-        private WeakReference<View> mView;
-        private final int[] mLocation = {0, 0};
-
-        public View getView() {
-            return mView == null ? null : mView.get();
-        }
-
-        public boolean setView(View view) {
-            final View old = getView();
-            if (old != view) {
-                mView = view == null ? null : new WeakReference<>(view);
-                return true;
-            }
-            return false;
-        }
-
-        @Override
-        public int getWidth() {
-            final View view = getView();
-            return view == null ? 0 : view.getWidth();
-        }
-
-        @Override
-        public int getHeight() {
-            final View view = getView();
-            return view == null ? 0 : view.getHeight();
-        }
-
-        @Nullable
-        @Override
-        public int[] getCoordinate() {
-            final View view = getView();
-            if (view == null) return null;
-            if (!view.isAttachedToWindow()) return null;
-
-            view.getLocationOnScreen(mLocation);
-            return mLocation;
-        }
-    }
 }

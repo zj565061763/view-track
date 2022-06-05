@@ -25,7 +25,24 @@ public interface ViewTracker {
     void setTarget(@Nullable View target);
 
     /**
-     * 设置目标的位置信息
+     * 源view
+     */
+    @Nullable
+    View getSource();
+
+    /**
+     * 目标view
+     */
+    @Nullable
+    View getTarget();
+
+    /**
+     * 设置源位置信息
+     */
+    void setSourceLocationInfo(SourceLocationInfo locationInfo);
+
+    /**
+     * 设置目标位置信息
      */
     void setTargetLocationInfo(@Nullable LocationInfo locationInfo);
 
@@ -33,18 +50,6 @@ public interface ViewTracker {
      * 设置要追踪的位置{@link Position}，默认左上角对齐
      */
     void setPosition(@NonNull Position position);
-
-    /**
-     * 返回想要追踪目标的源view
-     */
-    @Nullable
-    View getSource();
-
-    /**
-     * 返回目标view
-     */
-    @Nullable
-    View getTarget();
 
     /**
      * 触发一次追踪信息更新
@@ -85,7 +90,17 @@ public interface ViewTracker {
         Bottom,
     }
 
+    /**
+     * 位置信息
+     */
     interface LocationInfo {
+        /**
+         * 是否已经准备好
+         *
+         * @return true-是；false-否
+         */
+        boolean isReady();
+
         /**
          * 宽度
          */
@@ -99,19 +114,35 @@ public interface ViewTracker {
         /**
          * 坐标
          */
-        @Nullable
-        int[] getCoordinate();
+        void getCoordinate(@NonNull int[] position);
     }
 
-    abstract class Callback {
+    /**
+     * 源位置信息
+     */
+    interface SourceLocationInfo extends LocationInfo {
+        /**
+         * 返回父容器的信息
+         */
+        @Nullable
+        LocationInfo getParent();
+    }
+
+    interface ViewLocationInfo extends LocationInfo {
+        @Nullable
+        View getView();
+
+        void setView(@Nullable View view);
+    }
+
+    interface ViewCallback {
         /**
          * 源view变化回调
          *
          * @param oldSource 旧的源view
          * @param newSource 新的源view
          */
-        public void onSourceChanged(@Nullable View oldSource, @Nullable View newSource) {
-        }
+        void onSourceChanged(@Nullable View oldSource, @Nullable View newSource);
 
         /**
          * 目标view变化回调
@@ -119,28 +150,81 @@ public interface ViewTracker {
          * @param oldTarget 旧的目标view
          * @param newTarget 新的目标view
          */
+        void onTargetChanged(@Nullable View oldTarget, @Nullable View newTarget);
+
+        /**
+         * {@link Callback#canUpdate(SourceLocationInfo, LocationInfo)}
+         */
+        boolean canUpdate(@NonNull View source, @NonNull View target);
+
+        /**
+         * {@link Callback#onUpdate(Integer, Integer, SourceLocationInfo, LocationInfo)}
+         */
+        void onUpdate(int x, int y, @NonNull View source, @NonNull View target);
+    }
+
+    abstract class Callback implements ViewCallback {
+        @Override
+        public void onSourceChanged(@Nullable View oldSource, @Nullable View newSource) {
+        }
+
+        @Override
         public void onTargetChanged(@Nullable View oldTarget, @Nullable View newTarget) {
+        }
+
+        @Override
+        public boolean canUpdate(@NonNull View source, @NonNull View target) {
+            return true;
+        }
+
+        @Override
+        public void onUpdate(int x, int y, @NonNull View source, @NonNull View target) {
         }
 
         /**
          * 在更新追踪信息之前会调用此方法来决定可不可以更新，默认true-可以更新
          *
-         * @param source 源view
-         * @param target 目标view
+         * @param source 源
+         * @param target 目标
          * @return true-可以更新，false-不要更新
          */
-        public boolean canUpdate(@NonNull View source, @NonNull View target) {
+        public boolean canUpdate(@NonNull SourceLocationInfo source, @NonNull LocationInfo target) {
+            if (source instanceof ViewLocationInfo && target instanceof ViewLocationInfo) {
+                final ViewLocationInfo sourceInfo = (ViewLocationInfo) source;
+                final View sourceView = sourceInfo.getView();
+                if (sourceView == null) return false;
+
+                final ViewLocationInfo targetInfo = (ViewLocationInfo) target;
+                final View targetView = targetInfo.getView();
+                if (targetView == null) return false;
+
+                return canUpdate(sourceView, targetView);
+            }
             return true;
         }
 
         /**
-         * 按照指定的位置{@link Position}追踪到target后回调，回调source相对于父布局的x和y值
+         * 按照指定的位置{@link Position}追踪到target后回调，回调source相对于父容器的x和y值
          *
-         * @param x      source相对于父布局的x值
-         * @param y      source相对于父布局的y值
-         * @param source 源view
-         * @param target 目标view
+         * @param x      source相对于父容器的x值，如果为null，表示该方向不需要处理
+         * @param y      source相对于父容器的y值，如果为null，表示该方向不需要处理
+         * @param source 源
+         * @param target 目标
          */
-        public abstract void onUpdate(int x, int y, @NonNull View source, @NonNull View target);
+        public void onUpdate(Integer x, Integer y, @NonNull SourceLocationInfo source, @NonNull LocationInfo target) {
+            if (source instanceof ViewLocationInfo && target instanceof ViewLocationInfo) {
+                final ViewLocationInfo sourceInfo = (ViewLocationInfo) source;
+                final View sourceView = sourceInfo.getView();
+                if (sourceView == null) return;
+
+                final ViewLocationInfo targetInfo = (ViewLocationInfo) target;
+                final View targetView = targetInfo.getView();
+                if (targetView == null) return;
+
+                final int xInt = x != null ? x : sourceView.getLeft();
+                final int yInt = y != null ? y : sourceView.getTop();
+                onUpdate(xInt, yInt, sourceView, targetView);
+            }
+        }
     }
 }
