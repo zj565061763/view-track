@@ -47,7 +47,7 @@ public interface ViewTracker {
     void setTargetLocationInfo(@Nullable LocationInfo locationInfo);
 
     /**
-     * 设置要追踪的位置{@link Position}，默认左上角对齐
+     * 设置要追踪的位置{@link Position}，默认右上角对齐
      */
     void setPosition(@NonNull Position position);
 
