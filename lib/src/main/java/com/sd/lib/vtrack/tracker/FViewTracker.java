@@ -16,6 +16,9 @@ public class FViewTracker implements ViewTracker {
     private WeakReference<View> mSource;
     private WeakReference<View> mTarget;
 
+    private Location mSourceLocation;
+    private Location mTargetLocation;
+
     private final int[] mLocationSourceParent = {0, 0};
     private final int[] mLocationTarget = {0, 0};
 
@@ -42,6 +45,11 @@ public class FViewTracker implements ViewTracker {
     }
 
     @Override
+    public void setSourceLocation(@Nullable Location location) {
+        mSourceLocation = location;
+    }
+
+    @Override
     public void setTarget(@Nullable View target) {
         final View old = getTarget();
         if (old != target) {
@@ -50,6 +58,11 @@ public class FViewTracker implements ViewTracker {
                 mCallback.onTargetChanged(old, target);
             }
         }
+    }
+
+    @Override
+    public void setTargetLocation(@Nullable Location location) {
+        mTargetLocation = location;
     }
 
     @Override
