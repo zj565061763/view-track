@@ -5,16 +5,13 @@ plugins {
 
 def libGroupId = "com.sd.lib.android"
 def libArtifactId = "view-track"
-def libVersionCode = 20210611
 def libVersionName = "1.0.0"
 
 android {
-    compileSdkVersion 30
+    compileSdk 32
     defaultConfig {
-        minSdkVersion 16
-        targetSdkVersion 30
-        versionCode libVersionCode
-        versionName libVersionName
+        minSdk 19
+        targetSdk 32
     }
 
     buildTypes {
