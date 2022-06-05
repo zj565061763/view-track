@@ -20,11 +20,6 @@ public interface ViewTracker {
     void setSource(@Nullable View source);
 
     /**
-     * 设置源的位置信息
-     */
-    void setSourceLocation(@Nullable Location location);
-
-    /**
      * 设置目标view
      */
     void setTarget(@Nullable View target);
@@ -32,7 +27,7 @@ public interface ViewTracker {
     /**
      * 设置目标的位置信息
      */
-    void setTargetLocation(@Nullable Location location);
+    void setTargetLocationInfo(@Nullable LocationInfo locationInfo);
 
     /**
      * 设置要追踪的位置{@link Position}，默认左上角对齐
@@ -90,7 +85,7 @@ public interface ViewTracker {
         Bottom,
     }
 
-    interface Location {
+    interface LocationInfo {
         /**
          * 宽度
          */
@@ -104,6 +99,7 @@ public interface ViewTracker {
         /**
          * 坐标
          */
+        @Nullable
         int[] getCoordinate();
     }
 

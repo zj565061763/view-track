@@ -15,8 +15,7 @@ public class FViewTracker implements ViewTracker {
     private WeakReference<View> mSource;
     private WeakReference<View> mTarget;
 
-    private Location mSourceLocation;
-    private Location mTargetLocation;
+    private LocationInfo mTargetLocationInfo;
 
     private final int[] mLocationSourceParent = {0, 0};
     private final int[] mLocationTarget = {0, 0};
@@ -44,11 +43,6 @@ public class FViewTracker implements ViewTracker {
     }
 
     @Override
-    public void setSourceLocation(@Nullable Location location) {
-        mSourceLocation = location;
-    }
-
-    @Override
     public void setTarget(@Nullable View target) {
         final View old = getTarget();
         if (old != target) {
@@ -60,8 +54,8 @@ public class FViewTracker implements ViewTracker {
     }
 
     @Override
-    public void setTargetLocation(@Nullable Location location) {
-        mTargetLocation = location;
+    public void setTargetLocationInfo(@Nullable LocationInfo locationInfo) {
+        mTargetLocationInfo = locationInfo;
     }
 
     @Override
@@ -98,8 +92,8 @@ public class FViewTracker implements ViewTracker {
             return false;
         }
 
-        final ViewParent parent = source.getParent();
-        if (!(parent instanceof View)) {
+        final ViewParent sourceParent = source.getParent();
+        if (!(sourceParent instanceof View)) {
             return false;
         }
 
@@ -111,7 +105,7 @@ public class FViewTracker implements ViewTracker {
             return false;
         }
 
-        ((View) parent).getLocationOnScreen(mLocationSourceParent);
+        ((View) sourceParent).getLocationOnScreen(mLocationSourceParent);
         target.getLocationOnScreen(mLocationTarget);
 
         switch (mPosition) {
@@ -258,4 +252,45 @@ public class FViewTracker implements ViewTracker {
     }
 
     //---------- position end----------
+
+    private static class InternalTargetLocationInfo implements LocationInfo {
+        private WeakReference<View> mView;
+        private final int[] mLocation = {0, 0};
+
+        public View getView() {
+            return mView == null ? null : mView.get();
+        }
+
+        public boolean setView(View view) {
+            final View old = getView();
+            if (old != view) {
+                mView = view == null ? null : new WeakReference<>(view);
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public int getWidth() {
+            final View view = getView();
+            return view == null ? 0 : view.getWidth();
+        }
+
+        @Override
+        public int getHeight() {
+            final View view = getView();
+            return view == null ? 0 : view.getHeight();
+        }
+
+        @Nullable
+        @Override
+        public int[] getCoordinate() {
+            final View view = getView();
+            if (view == null) return null;
+            if (!view.isAttachedToWindow()) return null;
+
+            view.getLocationOnScreen(mLocation);
+            return mLocation;
+        }
+    }
 }
