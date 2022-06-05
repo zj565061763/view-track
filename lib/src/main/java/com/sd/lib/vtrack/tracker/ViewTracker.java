@@ -125,7 +125,7 @@ public interface ViewTracker {
          * 返回父容器的信息
          */
         @Nullable
-        LocationInfo getParent();
+        LocationInfo getParentLocationInfo();
     }
 
     interface ViewLocationInfo extends LocationInfo {

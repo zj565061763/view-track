@@ -115,7 +115,7 @@ public class FViewTracker implements ViewTracker {
         if (!target.isReady()) return false;
 
         // check parent
-        final LocationInfo sourceParent = source.getParent();
+        final LocationInfo sourceParent = source.getParentLocationInfo();
         if (sourceParent == null) return false;
         if (!sourceParent.isReady()) return false;
 

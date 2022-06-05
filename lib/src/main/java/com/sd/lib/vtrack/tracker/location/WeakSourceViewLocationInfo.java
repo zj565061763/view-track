@@ -10,7 +10,7 @@ import com.sd.lib.vtrack.tracker.ViewTracker;
 public class WeakSourceViewLocationInfo extends WeakViewLocationInfo implements ViewTracker.SourceLocationInfo {
     @Nullable
     @Override
-    public ViewTracker.LocationInfo getParent() {
+    public ViewTracker.LocationInfo getParentLocationInfo() {
         final View view = getView();
         if (view == null) return null;
 
