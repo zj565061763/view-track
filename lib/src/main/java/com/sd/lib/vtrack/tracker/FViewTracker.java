@@ -101,9 +101,8 @@ public class FViewTracker implements ViewTracker {
 
         // check null
         final SourceLocationInfo source = mSourceLocationInfo;
-        if (source == null) return false;
-
         final LocationInfo target = mTargetLocationInfo;
+        if (source == null) return false;
         if (target == null) return false;
 
         // check canUpdate
