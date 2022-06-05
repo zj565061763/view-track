@@ -199,6 +199,12 @@ public interface ViewTracker {
                 if (targetView == null) return false;
 
                 return canUpdate(sourceView, targetView);
+            } else if (source instanceof ViewLocationInfo) {
+                final ViewLocationInfo sourceInfo = (ViewLocationInfo) source;
+                if (sourceInfo.getView() == null) return false;
+            } else if (target instanceof ViewLocationInfo) {
+                final ViewLocationInfo targetInfo = (ViewLocationInfo) target;
+                if (targetInfo.getView() == null) return false;
             }
             return true;
         }
