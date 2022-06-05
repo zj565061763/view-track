@@ -211,7 +211,7 @@ public interface ViewTracker {
          * @param source 源
          * @param target 目标
          */
-        public void onUpdate(Integer x, Integer y, @NonNull SourceLocationInfo source, @NonNull LocationInfo target) {
+        public void onUpdate(@Nullable Integer x, @Nullable Integer y, @NonNull SourceLocationInfo source, @NonNull LocationInfo target) {
             if (source instanceof ViewLocationInfo && target instanceof ViewLocationInfo) {
                 final ViewLocationInfo sourceInfo = (ViewLocationInfo) source;
                 final View sourceView = sourceInfo.getView();
