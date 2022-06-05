@@ -89,6 +89,18 @@ public class FViewTracker implements ViewTracker {
         mTargetLocationInfo = locationInfo;
     }
 
+    @Nullable
+    @Override
+    public SourceLocationInfo getSourceLocationInfo() {
+        return mSourceLocationInfo;
+    }
+
+    @Nullable
+    @Override
+    public LocationInfo getTargetLocationInfo() {
+        return mTargetLocationInfo;
+    }
+
     @Override
     public void setPosition(@NonNull Position position) {
         mPosition = position;
