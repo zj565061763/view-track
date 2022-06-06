@@ -1,54 +1,46 @@
-package com.sd.lib.vtrack.updater;
+package com.sd.lib.vtrack.updater
 
-import android.view.View;
+import android.view.View
 
-import androidx.annotation.Nullable;
-
-public interface ViewUpdater {
+interface ViewUpdater {
     /**
      * 设置更新对象
      */
-    void setUpdatable(@Nullable Updatable updatable);
+    fun setUpdatable(updatable: Updatable?)
 
     /**
-     * 通知更新对象{@link #setUpdatable(Updatable)}
+     * 通知更新对象[setUpdatable]
      */
-    void notifyUpdatable();
+    fun notifyUpdatable()
 
     /**
-     * 返回设置的view
+     * 监听的view
      */
-    @Nullable
-    View getView();
-
-    /**
-     * 设置view
-     */
-    void setView(@Nullable View view);
+    var view: View?
 
     /**
      * 是否已经开始监听
      *
      * @return true-已经开始
      */
-    boolean isStarted();
+    val isStarted: Boolean
 
     /**
      * 开始监听
      *
      * @return true-已经开始
      */
-    boolean start();
+    fun start(): Boolean
 
     /**
      * 停止监听
      */
-    void stop();
-
+    fun stop()
+    
     interface Updatable {
         /**
          * 更新回调
          */
-        void update();
+        fun update()
     }
 }
