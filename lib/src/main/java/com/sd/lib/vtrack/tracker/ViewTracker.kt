@@ -3,7 +3,7 @@ package com.sd.lib.vtrack.tracker
 import android.view.View
 
 /**
- * view的位置追踪接口
+ * 位置追踪接口
  */
 interface ViewTracker {
     /**
@@ -22,29 +22,19 @@ interface ViewTracker {
     var target: View?
 
     /**
-     * 设置源位置信息
-     */
-    fun setSourceLocationInfo(locationInfo: SourceLocationInfo?)
-
-    /**
-     * 设置目标位置信息
-     */
-    fun setTargetLocationInfo(locationInfo: LocationInfo?)
-
-    /**
      * 源位置信息
      */
-    fun getSourceLocationInfo(): SourceLocationInfo?
+    var sourceLocationInfo: SourceLocationInfo?
 
     /**
      * 目标位置信息
      */
-    fun getTargetLocationInfo(): LocationInfo?
+    var targetLocationInfo: LocationInfo?
 
     /**
-     * 设置要追踪的位置[Position]，默认右上角对齐
+     * 要追踪的位置，默认右上角对齐
      */
-    fun setPosition(position: Position)
+    var position: Position
 
     /**
      * 触发一次追踪信息更新，并返回是否更新成功
@@ -152,13 +142,11 @@ interface ViewTracker {
          */
         fun canUpdate(source: SourceLocationInfo, target: LocationInfo): Boolean {
             if (source is ViewLocationInfo && target is ViewLocationInfo) {
-                val sourceInfo = source as ViewLocationInfo
-                val sourceView = sourceInfo.view ?: return false
+                val sourceView = source.view ?: return false
                 val targetView = target.view ?: return false
                 return canUpdate(sourceView, targetView)
             } else if (source is ViewLocationInfo) {
-                val sourceInfo = source as ViewLocationInfo
-                if (sourceInfo.view == null) return false
+                if (source.view == null) return false
             } else if (target is ViewLocationInfo) {
                 if (target.view == null) return false
             }
@@ -175,12 +163,9 @@ interface ViewTracker {
          */
         fun onUpdate(x: Int?, y: Int?, source: SourceLocationInfo, target: LocationInfo) {
             if (source is ViewLocationInfo && target is ViewLocationInfo) {
-                val sourceInfo = source as ViewLocationInfo
-                val sourceView = sourceInfo.view ?: return
+                val sourceView = source.view ?: return
                 val targetView = target.view ?: return
-                val xInt = x ?: sourceView.left
-                val yInt = y ?: sourceView.top
-                onUpdate(xInt, yInt, sourceView, targetView)
+                onUpdate(x ?: sourceView.left, y ?: sourceView.top, sourceView, targetView)
             }
         }
     }
