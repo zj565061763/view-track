@@ -30,7 +30,7 @@ abstract class ViewTreeObserverUpdater : BaseViewUpdater() {
         }
     }
 
-    override fun startImpl(view: View): Boolean {
+    final override fun startImpl(view: View): Boolean {
         val observer = view.viewTreeObserver ?: return false
         if (observer.isAlive) {
             unregister(observer)
@@ -40,7 +40,7 @@ abstract class ViewTreeObserverUpdater : BaseViewUpdater() {
         return false
     }
 
-    override fun stopImpl(view: View) {
+    final override fun stopImpl(view: View) {
         val observer = view.viewTreeObserver ?: return
         if (observer.isAlive) {
             unregister(observer)
