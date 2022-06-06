@@ -1,106 +1,72 @@
-package com.sd.lib.vtrack.updater;
+package com.sd.lib.vtrack.updater
 
-import android.view.View;
+import android.view.View
+import com.sd.lib.vtrack.updater.ViewUpdater.Updatable
+import java.lang.ref.WeakReference
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+abstract class BaseViewUpdater : ViewUpdater {
+    private var _viewRef: WeakReference<View>? = null
+    private var _updatable: Updatable? = null
 
-import java.lang.ref.WeakReference;
-
-public abstract class BaseViewUpdater implements ViewUpdater {
-    private boolean mIsStarted;
-    private Updatable mUpdatable;
-    private WeakReference<View> mView;
-
-    @Override
-    public final void setUpdatable(@Nullable Updatable updatable) {
-        mUpdatable = updatable;
+    final override fun setUpdatable(updatable: Updatable?) {
+        _updatable = updatable
     }
 
-    @Override
-    public final void notifyUpdatable() {
-        if (isStarted()) {
-            if (mUpdatable != null) {
-                mUpdatable.update();
+    final override fun notifyUpdatable() {
+        if (isStarted) {
+            _updatable?.update()
+        }
+    }
+
+    final override var view: View?
+        get() = _viewRef?.get()
+        set(value) {
+            val old = _viewRef?.get()
+            if (old !== value) {
+                stop()
+                _viewRef = if (value == null) null else WeakReference(value)
+                onViewChanged(old, value)
             }
         }
-    }
 
-    @Nullable
-    @Override
-    public final View getView() {
-        return mView == null ? null : mView.get();
-    }
-
-    @Override
-    public final void setView(@Nullable View view) {
-        final View old = getView();
-        if (old != view) {
-            stop();
-            mView = view == null ? null : new WeakReference<>(view);
-            onViewChanged(old, view);
+    final override var isStarted: Boolean = false
+        get() {
+            if (view == null) isStarted = false
+            return field
         }
-    }
-
-    @Override
-    public final boolean isStarted() {
-        if (getView() == null) {
-            setStarted(false);
-        }
-        return mIsStarted;
-    }
-
-    @Override
-    public final boolean start() {
-        if (isStarted()) {
-            return true;
-        }
-
-        final View view = getView();
-        if (view == null) {
-            return false;
-        }
-
-        final boolean startImpl = startImpl(view);
-        setStarted(startImpl);
-
-        return mIsStarted;
-    }
-
-    @Override
-    public final void stop() {
-        if (mIsStarted) {
-            final View view = getView();
-            if (view != null) {
-                stopImpl(view);
+        private set(value) {
+            if (field != value) {
+                field = value
+                onStateChanged(value)
             }
+        }
 
-            setStarted(false);
+    final override fun start(): Boolean {
+        if (isStarted) return true
+        val view = view ?: return false
+        return startImpl(view).also { isStarted = it }
+    }
+
+    final override fun stop() {
+        if (isStarted) {
+            view?.let { stopImpl(it) }
+            isStarted = false
         }
     }
 
-    private void setStarted(boolean started) {
-        if (mIsStarted != started) {
-            mIsStarted = started;
-            onStateChanged(started);
-        }
-    }
+    protected open fun onViewChanged(oldView: View?, newView: View?) {}
 
-    protected void onViewChanged(@Nullable View oldView, @Nullable View newView) {
-    }
-
-    protected void onStateChanged(boolean started) {
-    }
+    protected open fun onStateChanged(started: Boolean) {}
 
     /**
      * 开始监听
      *
      * @return true-成功开始
      */
-    protected abstract boolean startImpl(@NonNull View view);
+    protected abstract fun startImpl(view: View): Boolean
 
     /**
      * 停止监听
      */
-    protected abstract void stopImpl(@NonNull View view);
+    protected abstract fun stopImpl(view: View)
 }

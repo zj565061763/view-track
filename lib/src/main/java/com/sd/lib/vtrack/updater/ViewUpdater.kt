@@ -36,8 +36,8 @@ interface ViewUpdater {
      * 停止监听
      */
     fun stop()
-    
-    interface Updatable {
+
+    fun interface Updatable {
         /**
          * 更新回调
          */
