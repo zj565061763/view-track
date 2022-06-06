@@ -1,287 +1,204 @@
-package com.sd.lib.vtrack.tracker;
+package com.sd.lib.vtrack.tracker
 
-import android.view.View;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
-import com.sd.lib.vtrack.tracker.location.WeakSourceViewLocationInfo;
-import com.sd.lib.vtrack.tracker.location.WeakViewLocationInfo;
+import android.view.View
+import com.sd.lib.vtrack.tracker.ViewTracker.SourceLocationInfo
+import com.sd.lib.vtrack.tracker.ViewTracker.ViewLocationInfo
+import com.sd.lib.vtrack.tracker.location.WeakSourceViewLocationInfo
+import com.sd.lib.vtrack.tracker.location.WeakViewLocationInfo
 
 /**
- * view的位置追踪
+ * 位置追踪
  */
-public class FViewTracker implements ViewTracker {
-    private SourceLocationInfo mSourceLocationInfo;
-    private LocationInfo mTargetLocationInfo;
+class FViewTracker : ViewTracker {
+    override var sourceLocationInfo: SourceLocationInfo? = null
+    override var targetLocationInfo: ViewTracker.LocationInfo? = null
 
-    private final int[] mLocationSourceParent = {0, 0};
-    private final int[] mLocationTarget = {0, 0};
+    private val _locationSourceParent = intArrayOf(0, 0)
+    private val _locationTarget = intArrayOf(0, 0)
 
-    private Integer mX = 0;
-    private Integer mY = 0;
-    private Position mPosition = Position.TopRight;
+    private var _x: Int? = 0
+    private var _y: Int? = 0
 
-    private Callback mCallback;
+    override var position = ViewTracker.Position.TopRight
 
-    @Override
-    public void setCallback(@Nullable Callback callback) {
-        mCallback = callback;
+    private var _callback: ViewTracker.Callback? = null
+
+    override fun setCallback(callback: ViewTracker.Callback?) {
+        _callback = callback
     }
 
-    @Override
-    public void setSource(@Nullable View source) {
-        if (!(mSourceLocationInfo instanceof ViewLocationInfo)) {
-            mSourceLocationInfo = new WeakSourceViewLocationInfo() {
-                @Override
-                protected void onViewChanged(View old, View view) {
-                    super.onViewChanged(old, view);
-                    if (mCallback != null) {
-                        mCallback.onSourceChanged(old, source);
+    override var source: View?
+        get() {
+            val info = sourceLocationInfo ?: return null
+            return if (info is ViewLocationInfo) info.view else null
+        }
+        set(value) {
+            val info = sourceLocationInfo
+            if (info is ViewLocationInfo) {
+                info.view = value
+            } else {
+                sourceLocationInfo = object : WeakSourceViewLocationInfo() {
+                    override fun onViewChanged(old: View?, view: View?) {
+                        super.onViewChanged(old, view)
+                        _callback?.onSourceChanged(old, value)
                     }
-                }
-            };
+                }.also { it.view = value }
+            }
         }
-        ((ViewLocationInfo) mSourceLocationInfo).setView(source);
-    }
 
-    @Override
-    public void setTarget(@Nullable View target) {
-        if (!(mTargetLocationInfo instanceof ViewLocationInfo)) {
-            mTargetLocationInfo = new WeakViewLocationInfo() {
-                @Override
-                protected void onViewChanged(View old, View view) {
-                    super.onViewChanged(old, view);
-                    if (mCallback != null) {
-                        mCallback.onTargetChanged(old, view);
+    override var target: View?
+        get() {
+            val info = targetLocationInfo ?: return null
+            return if (info is ViewLocationInfo) info.view else null
+        }
+        set(value) {
+            val info = targetLocationInfo
+            if (info is ViewLocationInfo) {
+                info.view = source
+            } else {
+                targetLocationInfo = object : WeakViewLocationInfo() {
+                    override fun onViewChanged(old: View?, view: View?) {
+                        super.onViewChanged(old, view)
+                        _callback?.onTargetChanged(old, view)
                     }
-                }
-            };
+                }.also { it.view = value }
+            }
         }
-        ((ViewLocationInfo) mTargetLocationInfo).setView(target);
-    }
 
-    @Nullable
-    @Override
-    public View getSource() {
-        if (mSourceLocationInfo instanceof ViewLocationInfo) {
-            return ((ViewLocationInfo) mSourceLocationInfo).getView();
-        }
-        return null;
-    }
-
-    @Nullable
-    @Override
-    public View getTarget() {
-        if (mTargetLocationInfo instanceof ViewLocationInfo) {
-            return ((ViewLocationInfo) mTargetLocationInfo).getView();
-        }
-        return null;
-    }
-
-    @Override
-    public void setSourceLocationInfo(SourceLocationInfo locationInfo) {
-        mSourceLocationInfo = locationInfo;
-    }
-
-    @Override
-    public void setTargetLocationInfo(@Nullable LocationInfo locationInfo) {
-        mTargetLocationInfo = locationInfo;
-    }
-
-    @Nullable
-    @Override
-    public SourceLocationInfo getSourceLocationInfo() {
-        return mSourceLocationInfo;
-    }
-
-    @Nullable
-    @Override
-    public LocationInfo getTargetLocationInfo() {
-        return mTargetLocationInfo;
-    }
-
-    @NonNull
-    @Override
-    public Position getPosition() {
-        return mPosition;
-    }
-
-    @Override
-    public void setPosition(@NonNull Position position) {
-        mPosition = position;
-    }
-
-    @Override
-    public final boolean update() {
-        final Callback callback = mCallback;
-        if (callback == null) return false;
+    override fun update(): Boolean {
+        val callback = _callback ?: return false
 
         // check null
-        final SourceLocationInfo source = mSourceLocationInfo;
-        final LocationInfo target = mTargetLocationInfo;
-        if (source == null) return false;
-        if (target == null) return false;
+        val source = sourceLocationInfo ?: return false
+        val target = targetLocationInfo ?: return false
 
         // check canUpdate
         if (!callback.canUpdate(source, target)) {
-            return false;
+            return false
         }
 
         // check isReady
-        if (!source.isReady()) return false;
-        if (!target.isReady()) return false;
+        if (!source.isReady) return false
+        if (!target.isReady) return false
 
         // check parent
-        final LocationInfo sourceParent = source.getParentLocationInfo();
-        if (sourceParent == null) return false;
-        if (!sourceParent.isReady()) return false;
+        val sourceParent = source.parentLocationInfo ?: return false
+        if (!sourceParent.isReady) return false
 
-        sourceParent.getCoordinate(mLocationSourceParent);
-        target.getCoordinate(mLocationTarget);
+        sourceParent.getCoordinate(_locationSourceParent)
+        target.getCoordinate(_locationTarget)
 
-        switch (mPosition) {
-            case TopLeft:
-                layoutTopLeft(source, target);
-                break;
-            case TopCenter:
-                layoutTopCenter(source, target);
-                break;
-            case TopRight:
-                layoutTopRight(source, target);
-                break;
+        when (position) {
+            ViewTracker.Position.TopLeft -> layoutTopLeft(source, target)
+            ViewTracker.Position.TopCenter -> layoutTopCenter(source, target)
+            ViewTracker.Position.TopRight -> layoutTopRight(source, target)
 
-            case LeftCenter:
-                layoutLeftCenter(source, target);
-                break;
-            case Center:
-                layoutCenter(source, target);
-                break;
-            case RightCenter:
-                layoutRightCenter(source, target);
-                break;
+            ViewTracker.Position.LeftCenter -> layoutLeftCenter(source, target)
+            ViewTracker.Position.Center -> layoutCenter(source, target)
+            ViewTracker.Position.RightCenter -> layoutRightCenter(source, target)
 
-            case BottomLeft:
-                layoutBottomLeft(source, target);
-                break;
-            case BottomCenter:
-                layoutBottomCenter(source, target);
-                break;
-            case BottomRight:
-                layoutBottomRight(source, target);
-                break;
+            ViewTracker.Position.BottomLeft -> layoutBottomLeft(source, target)
+            ViewTracker.Position.BottomCenter -> layoutBottomCenter(source, target)
+            ViewTracker.Position.BottomRight -> layoutBottomRight(source, target)
 
-            case Left:
-                layoutLeft(source, target);
-                break;
-            case Top:
-                layoutTop(source, target);
-                break;
-            case Right:
-                layoutRight(source, target);
-                break;
-            case Bottom:
-                layoutBottom(source, target);
-                break;
+            ViewTracker.Position.Left -> layoutLeft(source, target)
+            ViewTracker.Position.Top -> layoutTop(source, target)
+            ViewTracker.Position.Right -> layoutRight(source, target)
+            ViewTracker.Position.Bottom -> layoutBottom(source, target)
         }
 
-        callback.onUpdate(mX, mY, source, target);
-        return true;
+        callback.onUpdate(_x, _y, source, target)
+        return true
     }
 
-    private int getX_alignLeft() {
-        return mLocationTarget[0] - mLocationSourceParent[0];
+    private fun getXAlignLeft(): Int {
+        return _locationTarget[0] - _locationSourceParent[0]
     }
 
-    private int getX_alignRight(LocationInfo source, LocationInfo target) {
-        return getX_alignLeft() + (target.getWidth() - source.getWidth());
+    private fun getXAlignRight(source: ViewTracker.LocationInfo, target: ViewTracker.LocationInfo): Int {
+        return getXAlignLeft() + (target.width - source.width)
     }
 
-    private int getX_alignCenter(LocationInfo source, LocationInfo target) {
-        return getX_alignLeft() + (target.getWidth() - source.getWidth()) / 2;
+    private fun getXAlignCenter(source: ViewTracker.LocationInfo, target: ViewTracker.LocationInfo): Int {
+        return getXAlignLeft() + (target.width - source.width) / 2
     }
 
-    private int getY_alignTop() {
-        return mLocationTarget[1] - mLocationSourceParent[1];
+    private fun getYAlignTop(): Int {
+        return _locationTarget[1] - _locationSourceParent[1]
     }
 
-    private int getY_alignBottom(LocationInfo source, LocationInfo target) {
-        return getY_alignTop() + (target.getHeight() - source.getHeight());
+    private fun getYAlignBottom(source: ViewTracker.LocationInfo, target: ViewTracker.LocationInfo): Int {
+        return getYAlignTop() + (target.height - source.height)
     }
 
-    private int getY_alignCenter(LocationInfo source, LocationInfo target) {
-        return getY_alignTop() + (target.getHeight() - source.getHeight()) / 2;
+    private fun getYAlignCenter(source: ViewTracker.LocationInfo, target: ViewTracker.LocationInfo): Int {
+        return getYAlignTop() + (target.height - source.height) / 2
     }
 
     //---------- position start----------
 
-    private void layoutTopLeft(LocationInfo source, LocationInfo target) {
-        mX = getX_alignLeft();
-        mY = getY_alignTop();
+    private fun layoutTopLeft(source: ViewTracker.LocationInfo, target: ViewTracker.LocationInfo) {
+        _x = getXAlignLeft()
+        _y = getYAlignTop()
     }
 
-    private void layoutTopCenter(LocationInfo source, LocationInfo target) {
-        mX = getX_alignCenter(source, target);
-        mY = getY_alignTop();
+    private fun layoutTopCenter(source: ViewTracker.LocationInfo, target: ViewTracker.LocationInfo) {
+        _x = getXAlignCenter(source, target)
+        _y = getYAlignTop()
     }
 
-    private void layoutTopRight(LocationInfo source, LocationInfo target) {
-        mX = getX_alignRight(source, target);
-        mY = getY_alignTop();
+    private fun layoutTopRight(source: ViewTracker.LocationInfo, target: ViewTracker.LocationInfo) {
+        _x = getXAlignRight(source, target)
+        _y = getYAlignTop()
     }
 
-
-    private void layoutLeftCenter(LocationInfo source, LocationInfo target) {
-        mX = getX_alignLeft();
-        mY = getY_alignCenter(source, target);
+    private fun layoutLeftCenter(source: ViewTracker.LocationInfo, target: ViewTracker.LocationInfo) {
+        _x = getXAlignLeft()
+        _y = getYAlignCenter(source, target)
     }
 
-    private void layoutCenter(LocationInfo source, LocationInfo target) {
-        mX = getX_alignCenter(source, target);
-        mY = getY_alignCenter(source, target);
+    private fun layoutCenter(source: ViewTracker.LocationInfo, target: ViewTracker.LocationInfo) {
+        _x = getXAlignCenter(source, target)
+        _y = getYAlignCenter(source, target)
     }
 
-    private void layoutRightCenter(LocationInfo source, LocationInfo target) {
-        mX = getX_alignRight(source, target);
-        mY = getY_alignCenter(source, target);
+    private fun layoutRightCenter(source: ViewTracker.LocationInfo, target: ViewTracker.LocationInfo) {
+        _x = getXAlignRight(source, target)
+        _y = getYAlignCenter(source, target)
     }
 
-
-    private void layoutBottomLeft(LocationInfo source, LocationInfo target) {
-        mX = getX_alignLeft();
-        mY = getY_alignBottom(source, target);
+    private fun layoutBottomLeft(source: ViewTracker.LocationInfo, target: ViewTracker.LocationInfo) {
+        _x = getXAlignLeft()
+        _y = getYAlignBottom(source, target)
     }
 
-    private void layoutBottomCenter(LocationInfo source, LocationInfo target) {
-        mX = getX_alignCenter(source, target);
-        mY = getY_alignBottom(source, target);
+    private fun layoutBottomCenter(source: ViewTracker.LocationInfo, target: ViewTracker.LocationInfo) {
+        _x = getXAlignCenter(source, target)
+        _y = getYAlignBottom(source, target)
     }
 
-    private void layoutBottomRight(LocationInfo source, LocationInfo target) {
-        mX = getX_alignRight(source, target);
-        mY = getY_alignBottom(source, target);
+    private fun layoutBottomRight(source: ViewTracker.LocationInfo, target: ViewTracker.LocationInfo) {
+        _x = getXAlignRight(source, target)
+        _y = getYAlignBottom(source, target)
     }
 
-
-    private void layoutLeft(LocationInfo source, LocationInfo target) {
-        mX = getX_alignLeft();
-        mY = null;
+    private fun layoutLeft(source: ViewTracker.LocationInfo, target: ViewTracker.LocationInfo) {
+        _x = getXAlignLeft()
+        _y = null
     }
 
-    private void layoutTop(LocationInfo source, LocationInfo target) {
-        mX = null;
-        mY = getY_alignTop();
+    private fun layoutTop(source: ViewTracker.LocationInfo, target: ViewTracker.LocationInfo) {
+        _x = null
+        _y = getYAlignTop()
     }
 
-    private void layoutRight(LocationInfo source, LocationInfo target) {
-        mX = getX_alignRight(source, target);
-        mY = null;
+    private fun layoutRight(source: ViewTracker.LocationInfo, target: ViewTracker.LocationInfo) {
+        _x = getXAlignRight(source, target)
+        _y = null
     }
 
-    private void layoutBottom(LocationInfo source, LocationInfo target) {
-        mX = null;
-        mY = getY_alignBottom(source, target);
+    private fun layoutBottom(source: ViewTracker.LocationInfo, target: ViewTracker.LocationInfo) {
+        _x = null
+        _y = getYAlignBottom(source, target)
     }
-
-    //---------- position end----------
 }
