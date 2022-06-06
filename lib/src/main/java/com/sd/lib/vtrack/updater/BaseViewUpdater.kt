@@ -25,7 +25,6 @@ abstract class BaseViewUpdater : ViewUpdater {
             if (old !== value) {
                 stop()
                 _viewRef = if (value == null) null else WeakReference(value)
-                onViewChanged(old, value)
             }
         }
 
@@ -53,11 +52,6 @@ abstract class BaseViewUpdater : ViewUpdater {
             isStarted = false
         }
     }
-
-    /**
-     * view变化回调
-     */
-    protected open fun onViewChanged(oldView: View?, newView: View?) {}
 
     /**
      * 状态变化回调
