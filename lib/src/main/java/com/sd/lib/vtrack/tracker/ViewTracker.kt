@@ -1,76 +1,57 @@
-package com.sd.lib.vtrack.tracker;
+package com.sd.lib.vtrack.tracker
 
-import android.view.View;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import android.view.View
 
 /**
  * view的位置追踪接口
  */
-public interface ViewTracker {
+interface ViewTracker {
     /**
      * 设置回调
      */
-    void setCallback(@Nullable Callback callback);
-
-    /**
-     * 设置源view
-     */
-    void setSource(@Nullable View source);
-
-    /**
-     * 设置目标view
-     */
-    void setTarget(@Nullable View target);
+    fun setCallback(callback: Callback?)
 
     /**
      * 源view
      */
-    @Nullable
-    View getSource();
+    var source: View?
 
     /**
      * 目标view
      */
-    @Nullable
-    View getTarget();
+    var target: View?
 
     /**
      * 设置源位置信息
      */
-    void setSourceLocationInfo(SourceLocationInfo locationInfo);
+    fun setSourceLocationInfo(locationInfo: SourceLocationInfo?)
 
     /**
      * 设置目标位置信息
      */
-    void setTargetLocationInfo(@Nullable LocationInfo locationInfo);
+    fun setTargetLocationInfo(locationInfo: LocationInfo?)
 
     /**
      * 源位置信息
      */
-    @Nullable
-    SourceLocationInfo getSourceLocationInfo();
+    fun getSourceLocationInfo(): SourceLocationInfo?
 
     /**
      * 目标位置信息
      */
-    @Nullable
-    LocationInfo getTargetLocationInfo();
+    fun getTargetLocationInfo(): LocationInfo?
 
     /**
-     * 设置要追踪的位置{@link Position}，默认右上角对齐
+     * 设置要追踪的位置[Position]，默认右上角对齐
      */
-    void setPosition(@NonNull Position position);
+    fun setPosition(position: Position)
 
     /**
-     * 触发一次追踪信息更新
-     *
-     * @return true-此次更新成功
+     * 触发一次追踪信息更新，并返回是否更新成功
      */
-    boolean update();
+    fun update(): Boolean
 
-    enum Position {
+    enum class Position {
         /** 与target左上角对齐 */
         TopLeft,
         /** 与target顶部中间对齐 */
@@ -99,99 +80,68 @@ public interface ViewTracker {
         /** 与target右边对齐 */
         Right,
         /** 与target底部对齐 */
-        Bottom,
+        Bottom
     }
 
     /**
      * 位置信息
      */
     interface LocationInfo {
-        /**
-         * 是否已经准备好
-         *
-         * @return true-是；false-否
-         */
-        boolean isReady();
+        /** 是否已经准备好 */
+        val isReady: Boolean
 
-        /**
-         * 宽度
-         */
-        int getWidth();
+        /** 宽度 */
+        val width: Int
 
-        /**
-         * 高度
-         */
-        int getHeight();
+        /** 高度 */
+        val height: Int
 
-        /**
-         * 坐标
-         */
-        void getCoordinate(@NonNull int[] position);
+        /** 坐标 */
+        fun getCoordinate(position: IntArray)
     }
 
     /**
      * 源位置信息
      */
-    interface SourceLocationInfo extends LocationInfo {
-        /**
-         * 返回父容器的信息
-         */
-        @Nullable
-        LocationInfo getParentLocationInfo();
+    interface SourceLocationInfo : LocationInfo {
+        /** 返回父容器的信息 */
+        val parentLocationInfo: LocationInfo?
     }
 
-    interface ViewLocationInfo extends LocationInfo {
-        @Nullable
-        View getView();
-
-        void setView(@Nullable View view);
+    interface ViewLocationInfo : LocationInfo {
+        var view: View?
     }
 
     interface ViewCallback {
         /**
          * 源view变化回调
-         *
-         * @param oldSource 旧的源view
-         * @param newSource 新的源view
          */
-        void onSourceChanged(@Nullable View oldSource, @Nullable View newSource);
+        fun onSourceChanged(oldSource: View?, newSource: View?)
 
         /**
          * 目标view变化回调
-         *
-         * @param oldTarget 旧的目标view
-         * @param newTarget 新的目标view
          */
-        void onTargetChanged(@Nullable View oldTarget, @Nullable View newTarget);
+        fun onTargetChanged(oldTarget: View?, newTarget: View?)
 
         /**
-         * {@link Callback#canUpdate(SourceLocationInfo, LocationInfo)}
+         * [Callback.canUpdate]
          */
-        boolean canUpdate(@NonNull View source, @NonNull View target);
+        fun canUpdate(source: View, target: View): Boolean
 
         /**
-         * {@link Callback#onUpdate(Integer, Integer, SourceLocationInfo, LocationInfo)}
+         * [Callback.onUpdate]
          */
-        void onUpdate(int x, int y, @NonNull View source, @NonNull View target);
+        fun onUpdate(x: Int, y: Int, source: View, target: View)
     }
 
-    abstract class Callback implements ViewCallback {
-        @Override
-        public void onSourceChanged(@Nullable View oldSource, @Nullable View newSource) {
+    abstract class Callback : ViewCallback {
+        override fun onSourceChanged(oldSource: View?, newSource: View?) {}
+        override fun onTargetChanged(oldTarget: View?, newTarget: View?) {}
+        override fun canUpdate(source: View, target: View): Boolean {
+            return true
         }
 
-        @Override
-        public void onTargetChanged(@Nullable View oldTarget, @Nullable View newTarget) {
-        }
-
-        @Override
-        public boolean canUpdate(@NonNull View source, @NonNull View target) {
-            return true;
-        }
-
-        @Override
-        public void onUpdate(int x, int y, @NonNull View source, @NonNull View target) {
-        }
+        override fun onUpdate(x: Int, y: Int, source: View, target: View) {}
 
         /**
          * 在更新追踪信息之前会调用此方法来决定可不可以更新，默认true-可以更新
@@ -200,48 +150,37 @@ public interface ViewTracker {
          * @param target 目标
          * @return true-可以更新，false-不要更新
          */
-        public boolean canUpdate(@NonNull SourceLocationInfo source, @NonNull LocationInfo target) {
-            if (source instanceof ViewLocationInfo && target instanceof ViewLocationInfo) {
-                final ViewLocationInfo sourceInfo = (ViewLocationInfo) source;
-                final View sourceView = sourceInfo.getView();
-                if (sourceView == null) return false;
-
-                final ViewLocationInfo targetInfo = (ViewLocationInfo) target;
-                final View targetView = targetInfo.getView();
-                if (targetView == null) return false;
-
-                return canUpdate(sourceView, targetView);
-            } else if (source instanceof ViewLocationInfo) {
-                final ViewLocationInfo sourceInfo = (ViewLocationInfo) source;
-                if (sourceInfo.getView() == null) return false;
-            } else if (target instanceof ViewLocationInfo) {
-                final ViewLocationInfo targetInfo = (ViewLocationInfo) target;
-                if (targetInfo.getView() == null) return false;
+        fun canUpdate(source: SourceLocationInfo, target: LocationInfo): Boolean {
+            if (source is ViewLocationInfo && target is ViewLocationInfo) {
+                val sourceInfo = source as ViewLocationInfo
+                val sourceView = sourceInfo.view ?: return false
+                val targetView = target.view ?: return false
+                return canUpdate(sourceView, targetView)
+            } else if (source is ViewLocationInfo) {
+                val sourceInfo = source as ViewLocationInfo
+                if (sourceInfo.view == null) return false
+            } else if (target is ViewLocationInfo) {
+                if (target.view == null) return false
             }
-            return true;
+            return true
         }
 
         /**
-         * 按照指定的位置{@link Position}追踪到target后回调，回调source相对于父容器的x和y值
+         * 按照指定的位置[Position]追踪到target后回调，回调source相对于父容器的x和y值
          *
          * @param x      source相对于父容器的x值，如果为null，表示该方向不需要处理
          * @param y      source相对于父容器的y值，如果为null，表示该方向不需要处理
          * @param source 源
          * @param target 目标
          */
-        public void onUpdate(@Nullable Integer x, @Nullable Integer y, @NonNull SourceLocationInfo source, @NonNull LocationInfo target) {
-            if (source instanceof ViewLocationInfo && target instanceof ViewLocationInfo) {
-                final ViewLocationInfo sourceInfo = (ViewLocationInfo) source;
-                final View sourceView = sourceInfo.getView();
-                if (sourceView == null) return;
-
-                final ViewLocationInfo targetInfo = (ViewLocationInfo) target;
-                final View targetView = targetInfo.getView();
-                if (targetView == null) return;
-
-                final int xInt = x != null ? x : sourceView.getLeft();
-                final int yInt = y != null ? y : sourceView.getTop();
-                onUpdate(xInt, yInt, sourceView, targetView);
+        fun onUpdate(x: Int?, y: Int?, source: SourceLocationInfo, target: LocationInfo) {
+            if (source is ViewLocationInfo && target is ViewLocationInfo) {
+                val sourceInfo = source as ViewLocationInfo
+                val sourceView = sourceInfo.view ?: return
+                val targetView = target.view ?: return
+                val xInt = x ?: sourceView.left
+                val yInt = y ?: sourceView.top
+                onUpdate(xInt, yInt, sourceView, targetView)
             }
         }
     }
