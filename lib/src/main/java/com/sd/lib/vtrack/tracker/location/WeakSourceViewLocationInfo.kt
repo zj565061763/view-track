@@ -1,24 +1,18 @@
-package com.sd.lib.vtrack.tracker.location;
+package com.sd.lib.vtrack.tracker.location
 
-import android.view.View;
-import android.view.ViewParent;
+import android.view.View
+import com.sd.lib.vtrack.tracker.ViewTracker
+import com.sd.lib.vtrack.tracker.ViewTracker.SourceLocationInfo
 
-import androidx.annotation.Nullable;
+open class WeakSourceViewLocationInfo : WeakViewLocationInfo(), SourceLocationInfo {
+    private val _parentInfo = WeakViewLocationInfo()
 
-import com.sd.lib.vtrack.tracker.ViewTracker;
-
-public class WeakSourceViewLocationInfo extends WeakViewLocationInfo implements ViewTracker.SourceLocationInfo {
-    @Nullable
-    @Override
-    public ViewTracker.LocationInfo getParentLocationInfo() {
-        final View view = getView();
-        if (view == null) return null;
-
-        final ViewParent parent = view.getParent();
-        if (!(parent instanceof View)) return null;
-
-        final WeakViewLocationInfo locationInfo = new WeakSourceViewLocationInfo();
-        locationInfo.setView((View) parent);
-        return locationInfo;
-    }
+    override val parentLocationInfo: ViewTracker.LocationInfo?
+        get() {
+            val view = view ?: return null
+            val parent = view.parent
+            if (parent !is View) return null
+            _parentInfo.view = parent
+            return _parentInfo
+        }
 }
