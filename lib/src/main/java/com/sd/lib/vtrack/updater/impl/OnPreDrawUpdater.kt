@@ -1,30 +1,23 @@
-package com.sd.lib.vtrack.updater.impl;
+package com.sd.lib.vtrack.updater.impl
 
-import android.view.ViewTreeObserver;
-
-import androidx.annotation.NonNull;
-
-import com.sd.lib.vtrack.updater.ViewTreeObserverUpdater;
+import android.view.ViewTreeObserver
+import com.sd.lib.vtrack.updater.ViewTreeObserverUpdater
 
 /**
- * 通过{@link ViewTreeObserver.OnPreDrawListener}来实现更新
+ * 通过[ViewTreeObserver.OnPreDrawListener]来实现更新
  */
-public class OnPreDrawUpdater extends ViewTreeObserverUpdater {
-    @Override
-    protected final void register(@NonNull ViewTreeObserver observer) {
-        observer.addOnPreDrawListener(mListener);
+class OnPreDrawUpdater : ViewTreeObserverUpdater() {
+
+    override fun register(observer: ViewTreeObserver) {
+        observer.addOnPreDrawListener(_listener)
     }
 
-    @Override
-    protected final void unregister(@NonNull ViewTreeObserver observer) {
-        observer.removeOnPreDrawListener(mListener);
+    override fun unregister(observer: ViewTreeObserver) {
+        observer.removeOnPreDrawListener(_listener)
     }
 
-    private final ViewTreeObserver.OnPreDrawListener mListener = new ViewTreeObserver.OnPreDrawListener() {
-        @Override
-        public boolean onPreDraw() {
-            notifyUpdatable();
-            return true;
-        }
-    };
+    private val _listener = ViewTreeObserver.OnPreDrawListener {
+        notifyUpdatable()
+        true
+    }
 }
