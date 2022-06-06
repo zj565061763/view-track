@@ -54,8 +54,14 @@ abstract class BaseViewUpdater : ViewUpdater {
         }
     }
 
+    /**
+     * view变化回调
+     */
     protected open fun onViewChanged(oldView: View?, newView: View?) {}
 
+    /**
+     * 状态变化回调
+     */
     protected open fun onStateChanged(started: Boolean) {}
 
     /**
