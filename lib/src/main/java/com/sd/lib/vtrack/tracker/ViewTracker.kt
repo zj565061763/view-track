@@ -140,7 +140,7 @@ interface ViewTracker {
          * @param target 目标
          * @return true-可以更新，false-不要更新
          */
-        fun canUpdate(source: SourceLocationInfo, target: LocationInfo): Boolean {
+        open fun canUpdate(source: SourceLocationInfo, target: LocationInfo): Boolean {
             if (source is ViewLocationInfo && target is ViewLocationInfo) {
                 val sourceView = source.view ?: return false
                 val targetView = target.view ?: return false
@@ -161,7 +161,7 @@ interface ViewTracker {
          * @param source 源
          * @param target 目标
          */
-        fun onUpdate(x: Int?, y: Int?, source: SourceLocationInfo, target: LocationInfo) {
+        open fun onUpdate(x: Int?, y: Int?, source: SourceLocationInfo, target: LocationInfo) {
             if (source is ViewLocationInfo && target is ViewLocationInfo) {
                 val sourceView = source.view ?: return
                 val targetView = target.view ?: return
