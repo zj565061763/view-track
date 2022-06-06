@@ -16,7 +16,7 @@ abstract class ViewTreeObserverUpdater : BaseViewUpdater() {
         }
     }
 
-    private val _onAttachStateChangeListener: OnAttachStateChangeListener = object : OnAttachStateChangeListener {
+    private val _onAttachStateChangeListener = object : OnAttachStateChangeListener {
         override fun onViewAttachedToWindow(v: View) {
             if (v === view) {
                 startImpl(v)
