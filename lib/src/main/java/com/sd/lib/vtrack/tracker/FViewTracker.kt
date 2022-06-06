@@ -39,7 +39,7 @@ class FViewTracker : ViewTracker {
                 sourceLocationInfo = object : WeakSourceViewLocationInfo() {
                     override fun onViewChanged(old: View?, view: View?) {
                         super.onViewChanged(old, view)
-                        _callback?.onSourceChanged(old, value)
+                        _callback?.onSourceChanged(old, view)
                     }
                 }.also { it.view = value }
             }
@@ -53,7 +53,7 @@ class FViewTracker : ViewTracker {
         set(value) {
             val info = targetLocationInfo
             if (info is ViewLocationInfo) {
-                info.view = source
+                info.view = value
             } else {
                 targetLocationInfo = object : WeakViewLocationInfo() {
                     override fun onViewChanged(old: View?, view: View?) {
