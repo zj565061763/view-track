@@ -4,29 +4,24 @@ import android.view.View
 import com.sd.lib.vtrack.tracker.FViewTracker
 import com.sd.lib.vtrack.tracker.ViewTracker
 import com.sd.lib.vtrack.updater.ViewUpdater
-import com.sd.lib.vtrack.updater.ViewUpdater.Updatable
 import com.sd.lib.vtrack.updater.impl.OnLayoutChangeUpdater
 
 /**
  * 位置跟踪
  */
 open class FPositionTracker {
-    private val _tracker: ViewTracker = FViewTracker()
+    private val _tracker = FViewTracker()
 
-    private val _sourceUpdater: ViewUpdater by lazy {
+    private val _sourceUpdater by lazy {
         createSourceUpdater().apply {
-            setUpdatable(_updatable)
+            setUpdatable { _tracker.update() }
         }
     }
 
-    private val _targetUpdater: ViewUpdater by lazy {
+    private val _targetUpdater by lazy {
         createTargetUpdater().apply {
-            setUpdatable(_updatable)
+            setUpdatable { _tracker.update() }
         }
-    }
-
-    private val _updatable = Updatable {
-        _tracker.update()
     }
 
     /**
