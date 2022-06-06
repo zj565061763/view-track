@@ -1,107 +1,92 @@
-package com.sd.lib.vtrack.ext;
+package com.sd.lib.vtrack.ext
 
-import android.view.View;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
-import com.sd.lib.vtrack.tracker.FViewTracker;
-import com.sd.lib.vtrack.tracker.ViewTracker;
-import com.sd.lib.vtrack.updater.ViewUpdater;
-import com.sd.lib.vtrack.updater.impl.OnLayoutChangeUpdater;
+import android.view.View
+import com.sd.lib.vtrack.tracker.FViewTracker
+import com.sd.lib.vtrack.tracker.ViewTracker
+import com.sd.lib.vtrack.updater.ViewUpdater
+import com.sd.lib.vtrack.updater.ViewUpdater.Updatable
+import com.sd.lib.vtrack.updater.impl.OnLayoutChangeUpdater
 
 /**
  * 位置跟踪
  */
-public class FPositionTracker {
-    private final ViewTracker mTracker = new FViewTracker();
+open class FPositionTracker {
+    private val _tracker: ViewTracker = FViewTracker()
 
-    private ViewUpdater mSourceUpdater;
-    private ViewUpdater mTargetUpdater;
-
-    private ViewUpdater getSourceUpdater() {
-        if (mSourceUpdater == null) {
-            mSourceUpdater = createSourceUpdater();
-            mSourceUpdater.setUpdatable(mUpdatable);
+    private val _sourceUpdater: ViewUpdater by lazy {
+        createSourceUpdater().apply {
+            setUpdatable(_updatable)
         }
-        return mSourceUpdater;
     }
 
-    private ViewUpdater getTargetUpdater() {
-        if (mTargetUpdater == null) {
-            mTargetUpdater = createTargetUpdater();
-            mTargetUpdater.setUpdatable(mUpdatable);
+    private val _targetUpdater: ViewUpdater by lazy {
+        createTargetUpdater().apply {
+            setUpdatable(_updatable)
         }
-        return mTargetUpdater;
+    }
+
+    private val _updatable = Updatable {
+        _tracker.update()
     }
 
     /**
      * 设置回调对象
      */
-    public void setCallback(@Nullable ViewTracker.Callback callback) {
-        mTracker.setCallback(callback);
+    fun setCallback(callback: ViewTracker.Callback?) {
+        _tracker.setCallback(callback)
     }
 
     /**
      * 设置源View
      */
-    public void setSource(@Nullable View view) {
-        mTracker.setSource(view);
-        getSourceUpdater().setView(view);
+    fun setSource(view: View?) {
+        _tracker.source = view
+        _sourceUpdater.view = view
     }
 
     /**
      * 设置目标View
      */
-    public void setTarget(@Nullable View view) {
-        mTracker.setTarget(view);
-        getTargetUpdater().setView(view);
+    fun setTarget(view: View?) {
+        _tracker.target = view
+        _targetUpdater.view = view
     }
 
     /**
      * 设置追踪位置
      */
-    public void setPosition(@NonNull ViewTracker.Position position) {
-        mTracker.setPosition(position);
+    fun setPosition(position: ViewTracker.Position) {
+        _tracker.position = position
     }
 
     /**
      * 开始追踪
      */
-    public void start() {
-        getSourceUpdater().start();
-        getTargetUpdater().start();
-        mTracker.update();
+    fun start() {
+        _sourceUpdater.start()
+        _targetUpdater.start()
+        _tracker.update()
     }
 
     /**
      * 停止追踪
      */
-    public void stop() {
-        getSourceUpdater().stop();
-        getTargetUpdater().stop();
+    fun stop() {
+        _sourceUpdater.stop()
+        _targetUpdater.stop()
     }
 
     /**
      * 创建源View更新对象
      */
-    @NonNull
-    protected ViewUpdater createSourceUpdater() {
-        return new OnLayoutChangeUpdater();
+    protected open fun createSourceUpdater(): ViewUpdater {
+        return OnLayoutChangeUpdater()
     }
 
     /**
      * 创建目标View更新对象
      */
-    @NonNull
-    protected ViewUpdater createTargetUpdater() {
-        return new OnLayoutChangeUpdater();
+    protected open fun createTargetUpdater(): ViewUpdater {
+        return OnLayoutChangeUpdater()
     }
-
-    private final ViewUpdater.Updatable mUpdatable = new ViewUpdater.Updatable() {
-        @Override
-        public void update() {
-            mTracker.update();
-        }
-    };
 }
