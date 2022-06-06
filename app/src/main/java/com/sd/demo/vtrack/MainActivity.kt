@@ -47,31 +47,27 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     override fun onClick(v: View) {
-        if (v === _binding.btnStart) {
-            // 开始追踪
-            tracker.start()
-        } else if (v === _binding.btnStop) {
-            // 停止追踪
-            tracker.stop()
-        }
-        if (v === _binding.btnTopLeft) {
-            tracker.setPosition(ViewTracker.Position.TopLeft)
-        } else if (v === _binding.btnTopCenter) {
-            tracker.setPosition(ViewTracker.Position.TopCenter)
-        } else if (v === _binding.btnTopRight) {
-            tracker.setPosition(ViewTracker.Position.TopRight)
-        } else if (v === _binding.btnLeftCenter) {
-            tracker.setPosition(ViewTracker.Position.LeftCenter)
-        } else if (v === _binding.btnCenter) {
-            tracker.setPosition(ViewTracker.Position.Center)
-        } else if (v === _binding.btnRightCenter) {
-            tracker.setPosition(ViewTracker.Position.RightCenter)
-        } else if (v === _binding.btnBottomLeft) {
-            tracker.setPosition(ViewTracker.Position.BottomLeft)
-        } else if (v === _binding.btnBottomCenter) {
-            tracker.setPosition(ViewTracker.Position.BottomCenter)
-        } else if (v === _binding.btnBottomRight) {
-            tracker.setPosition(ViewTracker.Position.BottomRight)
+        when (v) {
+            _binding.btnStart -> {
+                // 开始追踪
+                tracker.start()
+            }
+            _binding.btnStop -> {
+                // 停止追踪
+                tracker.stop()
+            }
+
+            _binding.btnTopLeft -> tracker.setPosition(ViewTracker.Position.TopLeft)
+            _binding.btnTopCenter -> tracker.setPosition(ViewTracker.Position.TopCenter)
+            _binding.btnTopRight -> tracker.setPosition(ViewTracker.Position.TopRight)
+
+            _binding.btnLeftCenter -> tracker.setPosition(ViewTracker.Position.LeftCenter)
+            _binding.btnCenter -> tracker.setPosition(ViewTracker.Position.Center)
+            _binding.btnRightCenter -> tracker.setPosition(ViewTracker.Position.RightCenter)
+
+            _binding.btnBottomLeft -> tracker.setPosition(ViewTracker.Position.BottomLeft)
+            _binding.btnBottomCenter -> tracker.setPosition(ViewTracker.Position.BottomCenter)
+            _binding.btnBottomRight -> tracker.setPosition(ViewTracker.Position.BottomRight)
         }
     }
 
