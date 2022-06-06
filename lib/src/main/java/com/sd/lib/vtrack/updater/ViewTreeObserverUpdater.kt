@@ -1,67 +1,59 @@
-package com.sd.lib.vtrack.updater;
+package com.sd.lib.vtrack.updater
 
-import android.view.View;
-import android.view.ViewTreeObserver;
+import android.view.View
+import android.view.View.OnAttachStateChangeListener
+import android.view.ViewTreeObserver
 
-import androidx.annotation.CallSuper;
-import androidx.annotation.NonNull;
+abstract class ViewTreeObserverUpdater : BaseViewUpdater() {
 
-public abstract class ViewTreeObserverUpdater extends BaseViewUpdater {
-    @CallSuper
-    @Override
-    protected void onStateChanged(boolean started) {
-        super.onStateChanged(started);
-        final View view = getView();
-        if (view != null) {
-            view.removeOnAttachStateChangeListener(mOnAttachStateChangeListener);
+    override fun onStateChanged(started: Boolean) {
+        super.onStateChanged(started)
+        view?.let { view ->
+            view.removeOnAttachStateChangeListener(_onAttachStateChangeListener)
             if (started) {
-                view.addOnAttachStateChangeListener(mOnAttachStateChangeListener);
+                view.addOnAttachStateChangeListener(_onAttachStateChangeListener)
             }
         }
     }
 
-    private final View.OnAttachStateChangeListener mOnAttachStateChangeListener = new View.OnAttachStateChangeListener() {
-        @Override
-        public void onViewAttachedToWindow(View v) {
-            if (v == getView()) {
-                startImpl(v);
+    private val _onAttachStateChangeListener: OnAttachStateChangeListener = object : OnAttachStateChangeListener {
+        override fun onViewAttachedToWindow(v: View) {
+            if (v === view) {
+                startImpl(v)
             }
         }
 
-        @Override
-        public void onViewDetachedFromWindow(View v) {
-            if (v == getView()) {
-                stopImpl(v);
+        override fun onViewDetachedFromWindow(v: View) {
+            if (v === view) {
+                stopImpl(v)
             }
         }
-    };
-
-    @Override
-    protected final boolean startImpl(@NonNull View view) {
-        final ViewTreeObserver observer = view.getViewTreeObserver();
-        if (observer.isAlive()) {
-            unregister(observer);
-            register(observer);
-            return true;
-        }
-        return false;
     }
 
-    @Override
-    protected final void stopImpl(@NonNull View view) {
-        final ViewTreeObserver observer = view.getViewTreeObserver();
-        if (observer.isAlive()) {
-            unregister(observer);
+    override fun startImpl(view: View): Boolean {
+        val observer = view.viewTreeObserver ?: return false
+        if (observer.isAlive) {
+            unregister(observer)
+            register(observer)
+            return true
+        }
+        return false
+    }
+
+    override fun stopImpl(view: View) {
+        val observer = view.viewTreeObserver ?: return
+        if (observer.isAlive) {
+            unregister(observer)
         }
     }
 
     /**
      * 注册监听
      */
-    protected abstract void register(@NonNull ViewTreeObserver observer);
+    protected abstract fun register(observer: ViewTreeObserver)
 
     /**
      * 取消注册监听
      */
-    protected abstract void unregister(@NonNull ViewTreeObserver observer);
+    protected abstract fun unregister(observer: ViewTreeObserver)
 }
