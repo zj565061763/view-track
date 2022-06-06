@@ -7,7 +7,7 @@ import com.sd.lib.vtrack.updater.BaseViewUpdater
 /**
  * 通过[View.OnLayoutChangeListener]来实现更新
  */
-class OnLayoutChangeUpdater : BaseViewUpdater() {
+open class OnLayoutChangeUpdater : BaseViewUpdater() {
 
     override fun startImpl(view: View): Boolean {
         view.addOnLayoutChangeListener(_listener)
