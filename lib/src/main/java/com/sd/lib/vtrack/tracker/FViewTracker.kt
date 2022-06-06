@@ -10,15 +10,14 @@ import com.sd.lib.vtrack.tracker.location.WeakViewLocationInfo
  * 位置追踪
  */
 class FViewTracker : ViewTracker {
-    override var sourceLocationInfo: SourceLocationInfo? = null
-    override var targetLocationInfo: ViewTracker.LocationInfo? = null
-
     private val _locationSourceParent = intArrayOf(0, 0)
     private val _locationTarget = intArrayOf(0, 0)
 
     private var _x: Int? = 0
     private var _y: Int? = 0
 
+    override var sourceLocationInfo: SourceLocationInfo? = null
+    override var targetLocationInfo: ViewTracker.LocationInfo? = null
     override var position = ViewTracker.Position.TopRight
 
     private var _callback: ViewTracker.Callback? = null
