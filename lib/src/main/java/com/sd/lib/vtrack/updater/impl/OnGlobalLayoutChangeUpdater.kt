@@ -1,29 +1,21 @@
-package com.sd.lib.vtrack.updater.impl;
+package com.sd.lib.vtrack.updater.impl
 
-import android.view.ViewTreeObserver;
-
-import androidx.annotation.NonNull;
-
-import com.sd.lib.vtrack.updater.ViewTreeObserverUpdater;
+import android.view.ViewTreeObserver
+import android.view.ViewTreeObserver.OnGlobalLayoutListener
+import com.sd.lib.vtrack.updater.ViewTreeObserverUpdater
 
 /**
- * 通过{@link ViewTreeObserver.OnGlobalLayoutListener}来实现更新
+ * 通过[ViewTreeObserver.OnGlobalLayoutListener]来实现更新
  */
-public class OnGlobalLayoutChangeUpdater extends ViewTreeObserverUpdater {
-    @Override
-    protected final void register(@NonNull ViewTreeObserver observer) {
-        observer.addOnGlobalLayoutListener(mListener);
+class OnGlobalLayoutChangeUpdater : ViewTreeObserverUpdater() {
+
+    override fun register(observer: ViewTreeObserver) {
+        observer.addOnGlobalLayoutListener(_listener)
     }
 
-    @Override
-    protected final void unregister(@NonNull ViewTreeObserver observer) {
-        observer.removeOnGlobalLayoutListener(mListener);
+    override fun unregister(observer: ViewTreeObserver) {
+        observer.removeOnGlobalLayoutListener(_listener)
     }
 
-    private final ViewTreeObserver.OnGlobalLayoutListener mListener = new ViewTreeObserver.OnGlobalLayoutListener() {
-        @Override
-        public void onGlobalLayout() {
-            notifyUpdatable();
-        }
-    };
+    private val _listener = OnGlobalLayoutListener { notifyUpdatable() }
 }
