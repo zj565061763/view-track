@@ -81,22 +81,22 @@ class FViewTracker : ViewTracker {
         target.getCoordinate(_locationTarget)
 
         when (position) {
-            ViewTracker.Position.TopLeft -> layoutTopLeft(source, target)
-            ViewTracker.Position.TopCenter -> layoutTopCenter(source, target)
-            ViewTracker.Position.TopRight -> layoutTopRight(source, target)
+            Position.TopLeft -> layoutTopLeft(source, target)
+            Position.TopCenter -> layoutTopCenter(source, target)
+            Position.TopRight -> layoutTopRight(source, target)
 
-            ViewTracker.Position.LeftCenter -> layoutLeftCenter(source, target)
-            ViewTracker.Position.Center -> layoutCenter(source, target)
-            ViewTracker.Position.RightCenter -> layoutRightCenter(source, target)
+            Position.LeftCenter -> layoutLeftCenter(source, target)
+            Position.Center -> layoutCenter(source, target)
+            Position.RightCenter -> layoutRightCenter(source, target)
 
-            ViewTracker.Position.BottomLeft -> layoutBottomLeft(source, target)
-            ViewTracker.Position.BottomCenter -> layoutBottomCenter(source, target)
-            ViewTracker.Position.BottomRight -> layoutBottomRight(source, target)
+            Position.BottomLeft -> layoutBottomLeft(source, target)
+            Position.BottomCenter -> layoutBottomCenter(source, target)
+            Position.BottomRight -> layoutBottomRight(source, target)
 
-            ViewTracker.Position.Left -> layoutLeft(source, target)
-            ViewTracker.Position.Top -> layoutTop(source, target)
-            ViewTracker.Position.Right -> layoutRight(source, target)
-            ViewTracker.Position.Bottom -> layoutBottom(source, target)
+            Position.Left -> layoutLeft(source, target)
+            Position.Top -> layoutTop(source, target)
+            Position.Right -> layoutRight(source, target)
+            Position.Bottom -> layoutBottom(source, target)
         }
 
         callback.onUpdate(_x, _y, source, target)
@@ -107,11 +107,11 @@ class FViewTracker : ViewTracker {
         return _locationTarget[0] - _locationSourceParent[0]
     }
 
-    private fun getXAlignRight(source: ViewTracker.LocationInfo, target: ViewTracker.LocationInfo): Int {
+    private fun getXAlignRight(source: LocationInfo, target: LocationInfo): Int {
         return getXAlignLeft() + (target.width - source.width)
     }
 
-    private fun getXAlignCenter(source: ViewTracker.LocationInfo, target: ViewTracker.LocationInfo): Int {
+    private fun getXAlignCenter(source: LocationInfo, target: LocationInfo): Int {
         return getXAlignLeft() + (target.width - source.width) / 2
     }
 
@@ -119,77 +119,77 @@ class FViewTracker : ViewTracker {
         return _locationTarget[1] - _locationSourceParent[1]
     }
 
-    private fun getYAlignBottom(source: ViewTracker.LocationInfo, target: ViewTracker.LocationInfo): Int {
+    private fun getYAlignBottom(source: LocationInfo, target: LocationInfo): Int {
         return getYAlignTop() + (target.height - source.height)
     }
 
-    private fun getYAlignCenter(source: ViewTracker.LocationInfo, target: ViewTracker.LocationInfo): Int {
+    private fun getYAlignCenter(source: LocationInfo, target: LocationInfo): Int {
         return getYAlignTop() + (target.height - source.height) / 2
     }
 
     //---------- position start----------
 
-    private fun layoutTopLeft(source: ViewTracker.LocationInfo, target: ViewTracker.LocationInfo) {
+    private fun layoutTopLeft(source: LocationInfo, target: LocationInfo) {
         _x = getXAlignLeft()
         _y = getYAlignTop()
     }
 
-    private fun layoutTopCenter(source: ViewTracker.LocationInfo, target: ViewTracker.LocationInfo) {
+    private fun layoutTopCenter(source: LocationInfo, target: LocationInfo) {
         _x = getXAlignCenter(source, target)
         _y = getYAlignTop()
     }
 
-    private fun layoutTopRight(source: ViewTracker.LocationInfo, target: ViewTracker.LocationInfo) {
+    private fun layoutTopRight(source: LocationInfo, target: LocationInfo) {
         _x = getXAlignRight(source, target)
         _y = getYAlignTop()
     }
 
-    private fun layoutLeftCenter(source: ViewTracker.LocationInfo, target: ViewTracker.LocationInfo) {
+    private fun layoutLeftCenter(source: LocationInfo, target: LocationInfo) {
         _x = getXAlignLeft()
         _y = getYAlignCenter(source, target)
     }
 
-    private fun layoutCenter(source: ViewTracker.LocationInfo, target: ViewTracker.LocationInfo) {
+    private fun layoutCenter(source: LocationInfo, target: LocationInfo) {
         _x = getXAlignCenter(source, target)
         _y = getYAlignCenter(source, target)
     }
 
-    private fun layoutRightCenter(source: ViewTracker.LocationInfo, target: ViewTracker.LocationInfo) {
+    private fun layoutRightCenter(source: LocationInfo, target: LocationInfo) {
         _x = getXAlignRight(source, target)
         _y = getYAlignCenter(source, target)
     }
 
-    private fun layoutBottomLeft(source: ViewTracker.LocationInfo, target: ViewTracker.LocationInfo) {
+    private fun layoutBottomLeft(source: LocationInfo, target: LocationInfo) {
         _x = getXAlignLeft()
         _y = getYAlignBottom(source, target)
     }
 
-    private fun layoutBottomCenter(source: ViewTracker.LocationInfo, target: ViewTracker.LocationInfo) {
+    private fun layoutBottomCenter(source: LocationInfo, target: LocationInfo) {
         _x = getXAlignCenter(source, target)
         _y = getYAlignBottom(source, target)
     }
 
-    private fun layoutBottomRight(source: ViewTracker.LocationInfo, target: ViewTracker.LocationInfo) {
+    private fun layoutBottomRight(source: LocationInfo, target: LocationInfo) {
         _x = getXAlignRight(source, target)
         _y = getYAlignBottom(source, target)
     }
 
-    private fun layoutLeft(source: ViewTracker.LocationInfo, target: ViewTracker.LocationInfo) {
+    private fun layoutLeft(source: LocationInfo, target: LocationInfo) {
         _x = getXAlignLeft()
         _y = null
     }
 
-    private fun layoutTop(source: ViewTracker.LocationInfo, target: ViewTracker.LocationInfo) {
+    private fun layoutTop(source: LocationInfo, target: LocationInfo) {
         _x = null
         _y = getYAlignTop()
     }
 
-    private fun layoutRight(source: ViewTracker.LocationInfo, target: ViewTracker.LocationInfo) {
+    private fun layoutRight(source: LocationInfo, target: LocationInfo) {
         _x = getXAlignRight(source, target)
         _y = null
     }
 
-    private fun layoutBottom(source: ViewTracker.LocationInfo, target: ViewTracker.LocationInfo) {
+    private fun layoutBottom(source: LocationInfo, target: LocationInfo) {
         _x = null
         _y = getYAlignBottom(source, target)
     }
