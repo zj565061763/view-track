@@ -6,14 +6,10 @@ import android.view.ViewTreeObserver
 
 abstract class ViewTreeObserverUpdater : BaseViewUpdater() {
 
-    override fun onStateChanged(started: Boolean) {
-        super.onStateChanged(started)
-        view?.let { view ->
-            view.removeOnAttachStateChangeListener(_onAttachStateChangeListener)
-            if (started) {
-                view.addOnAttachStateChangeListener(_onAttachStateChangeListener)
-            }
-        }
+    override fun onViewChanged(old: View?, view: View?) {
+        super.onViewChanged(old, view)
+        old?.removeOnAttachStateChangeListener(_onAttachStateChangeListener)
+        view?.addOnAttachStateChangeListener(_onAttachStateChangeListener)
     }
 
     private val _onAttachStateChangeListener = object : OnAttachStateChangeListener {
