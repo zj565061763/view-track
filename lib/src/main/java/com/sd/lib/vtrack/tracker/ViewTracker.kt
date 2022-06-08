@@ -7,9 +7,9 @@ import android.view.View
  */
 interface ViewTracker {
     /**
-     * 设置回调
+     * 回调对象
      */
-    fun setCallback(callback: Callback?)
+    var callback: Callback?
 
     /**
      * 源view

@@ -1,8 +1,7 @@
 package com.sd.lib.vtrack.tracker
 
 import android.view.View
-import com.sd.lib.vtrack.tracker.ViewTracker.SourceLocationInfo
-import com.sd.lib.vtrack.tracker.ViewTracker.ViewLocationInfo
+import com.sd.lib.vtrack.tracker.ViewTracker.*
 import com.sd.lib.vtrack.tracker.location.WeakSourceViewLocationInfo
 import com.sd.lib.vtrack.tracker.location.WeakViewLocationInfo
 
@@ -16,15 +15,10 @@ class FViewTracker : ViewTracker {
     private var _x: Int? = 0
     private var _y: Int? = 0
 
+    override var position = Position.TopRight
     override var sourceLocationInfo: SourceLocationInfo? = null
-    override var targetLocationInfo: ViewTracker.LocationInfo? = null
-    override var position = ViewTracker.Position.TopRight
-
-    private var _callback: ViewTracker.Callback? = null
-
-    override fun setCallback(callback: ViewTracker.Callback?) {
-        _callback = callback
-    }
+    override var targetLocationInfo: LocationInfo? = null
+    override var callback: Callback? = null
 
     override var source: View?
         get() {
@@ -39,7 +33,7 @@ class FViewTracker : ViewTracker {
                 sourceLocationInfo = object : WeakSourceViewLocationInfo() {
                     override fun onViewChanged(old: View?, view: View?) {
                         super.onViewChanged(old, view)
-                        _callback?.onSourceChanged(old, view)
+                        callback?.onSourceChanged(old, view)
                     }
                 }.also { it.view = value }
             }
@@ -58,14 +52,14 @@ class FViewTracker : ViewTracker {
                 targetLocationInfo = object : WeakViewLocationInfo() {
                     override fun onViewChanged(old: View?, view: View?) {
                         super.onViewChanged(old, view)
-                        _callback?.onTargetChanged(old, view)
+                        callback?.onTargetChanged(old, view)
                     }
                 }.also { it.view = value }
             }
         }
 
     override fun update(): Boolean {
-        val callback = _callback ?: return false
+        val callback = callback ?: return false
 
         // check null
         val source = sourceLocationInfo ?: return false

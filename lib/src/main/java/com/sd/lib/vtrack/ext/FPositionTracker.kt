@@ -28,7 +28,7 @@ open class FPositionTracker {
      * 设置回调对象
      */
     fun setCallback(callback: ViewTracker.Callback?) {
-        _tracker.setCallback(callback)
+        _tracker.callback = callback
     }
 
     /**
