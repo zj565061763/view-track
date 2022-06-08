@@ -9,7 +9,7 @@ open class WeakViewLocationInfo : ViewLocationInfo {
 
     override val isReady: Boolean
         get() {
-            val view = _viewRef?.get() ?: return false
+            val view = view ?: return false
             if (!view.isAttachedToWindow) return false
             return view.width > 0 && view.height > 0
         }
@@ -25,13 +25,13 @@ open class WeakViewLocationInfo : ViewLocationInfo {
         }
 
     override val width: Int
-        get() = _viewRef?.get()?.width ?: 0
+        get() = view?.width ?: 0
 
     override val height: Int
-        get() = _viewRef?.get()?.height ?: 0
+        get() = view?.height ?: 0
 
     override fun getCoordinate(position: IntArray) {
-        _viewRef?.get()?.getLocationOnScreen(position)
+        view?.getLocationOnScreen(position)
     }
 
     protected open fun onViewChanged(old: View?, view: View?) {}
