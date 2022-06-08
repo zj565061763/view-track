@@ -10,7 +10,7 @@ open class WeakSourceViewLocationInfo : WeakViewLocationInfo(), SourceLocationIn
     override val parentLocationInfo: ViewTracker.LocationInfo?
         get() {
             val view = view ?: return null
-            val parent = view.parent
+            val parent = view.parent ?: return null
             if (parent !is View) return null
             _parentInfo.view = parent
             return _parentInfo
