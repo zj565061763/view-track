@@ -59,9 +59,8 @@ class FViewTracker : ViewTracker {
         }
 
     override fun update(): Boolean {
-        val callback = callback ?: return false
-
         // check null
+        val callback = callback ?: return false
         val source = sourceLocationInfo ?: return false
         val target = targetLocationInfo ?: return false
 
