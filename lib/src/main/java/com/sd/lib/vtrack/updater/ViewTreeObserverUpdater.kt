@@ -5,6 +5,7 @@ import android.view.View.OnAttachStateChangeListener
 import android.view.ViewTreeObserver
 
 abstract class ViewTreeObserverUpdater : BaseViewUpdater() {
+    private var hasRegister = false
 
     override fun onViewChanged(old: View?, view: View?) {
         super.onViewChanged(old, view)
@@ -15,7 +16,9 @@ abstract class ViewTreeObserverUpdater : BaseViewUpdater() {
     private val _onAttachStateChangeListener = object : OnAttachStateChangeListener {
         override fun onViewAttachedToWindow(v: View) {
             if (v == view) {
-                startImpl(v)
+                if (isStarted && !hasRegister) {
+                    startImpl(v)
+                }
             }
         }
 
@@ -31,6 +34,7 @@ abstract class ViewTreeObserverUpdater : BaseViewUpdater() {
         if (observer.isAlive) {
             unregister(observer)
             register(observer)
+            hasRegister = true
             return true
         }
         return false
@@ -41,6 +45,7 @@ abstract class ViewTreeObserverUpdater : BaseViewUpdater() {
         if (observer.isAlive) {
             unregister(observer)
         }
+        hasRegister = false
     }
 
     /**
