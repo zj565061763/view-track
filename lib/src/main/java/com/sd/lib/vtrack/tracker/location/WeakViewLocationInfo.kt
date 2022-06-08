@@ -18,7 +18,7 @@ open class WeakViewLocationInfo : ViewLocationInfo {
         get() = _viewRef?.get()
         set(value) {
             val old = _viewRef?.get()
-            if (old !== value) {
+            if (old != value) {
                 _viewRef = if (value == null) null else WeakReference(value)
                 onViewChanged(old, value)
             }

@@ -14,13 +14,13 @@ abstract class ViewTreeObserverUpdater : BaseViewUpdater() {
 
     private val _onAttachStateChangeListener = object : OnAttachStateChangeListener {
         override fun onViewAttachedToWindow(v: View) {
-            if (v === view) {
+            if (v == view) {
                 startImpl(v)
             }
         }
 
         override fun onViewDetachedFromWindow(v: View) {
-            if (v === view) {
+            if (v == view) {
                 stopImpl(v)
             }
         }
