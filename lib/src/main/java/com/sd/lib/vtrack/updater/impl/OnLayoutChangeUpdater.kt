@@ -9,12 +9,12 @@ import com.sd.lib.vtrack.updater.BaseViewUpdater
  */
 open class OnLayoutChangeUpdater : BaseViewUpdater() {
 
-    override fun startImpl(view: View): Boolean {
+    final override fun startImpl(view: View): Boolean {
         view.addOnLayoutChangeListener(_listener)
         return true
     }
 
-    override fun stopImpl(view: View) {
+    final override fun stopImpl(view: View) {
         view.removeOnLayoutChangeListener(_listener)
     }
 

@@ -8,11 +8,11 @@ import com.sd.lib.vtrack.updater.ViewTreeObserverUpdater
  */
 open class OnPreDrawUpdater : ViewTreeObserverUpdater() {
 
-    override fun register(observer: ViewTreeObserver) {
+    final override fun register(observer: ViewTreeObserver) {
         observer.addOnPreDrawListener(_listener)
     }
 
-    override fun unregister(observer: ViewTreeObserver) {
+    final override fun unregister(observer: ViewTreeObserver) {
         observer.removeOnPreDrawListener(_listener)
     }
 

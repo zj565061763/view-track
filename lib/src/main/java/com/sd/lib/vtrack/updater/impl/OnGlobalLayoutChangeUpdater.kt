@@ -9,11 +9,11 @@ import com.sd.lib.vtrack.updater.ViewTreeObserverUpdater
  */
 open class OnGlobalLayoutChangeUpdater : ViewTreeObserverUpdater() {
 
-    override fun register(observer: ViewTreeObserver) {
+    final override fun register(observer: ViewTreeObserver) {
         observer.addOnGlobalLayoutListener(_listener)
     }
 
-    override fun unregister(observer: ViewTreeObserver) {
+    final override fun unregister(observer: ViewTreeObserver) {
         observer.removeOnGlobalLayoutListener(_listener)
     }
 
