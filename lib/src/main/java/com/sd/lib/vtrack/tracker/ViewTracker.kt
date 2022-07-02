@@ -114,8 +114,7 @@ interface ViewTracker {
         open fun onTargetChanged(oldTarget: View?, newTarget: View?) {}
 
         /**
-         * 在更新之前触发
-         * @return true-可以更新，false-不要更新
+         * [Callback.canUpdate]
          */
         open fun canUpdate(source: View, target: View): Boolean = true
 
