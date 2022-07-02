@@ -114,7 +114,8 @@ interface ViewTracker {
         open fun onTargetChanged(oldTarget: View?, newTarget: View?) {}
 
         /**
-         * 在更新之前触发，返回值true-可以更新；false-不可以，默认true。
+         * 在更新之前触发
+         * @return true-可以更新，false-不要更新
          */
         open fun canUpdate(source: View, target: View): Boolean = true
 
@@ -126,8 +127,7 @@ interface ViewTracker {
 
     abstract class Callback : ViewCallback() {
         /**
-         * 在更新之前触发，返回值true-可以更新；false-不可以，默认true。
-         *
+         * 在更新之前触发
          * @param source 源
          * @param target 目标
          * @return true-可以更新，false-不要更新
@@ -146,10 +146,10 @@ interface ViewTracker {
         }
 
         /**
-         * 按照指定的位置[Position]追踪到target后回调，回调source相对于父容器的x和y值
+         * 根据指定[Position]追踪到[target]后触发。
          *
-         * @param x      source相对于父容器的x值，如果为null，表示该方向不需要处理
-         * @param y      source相对于父容器的y值，如果为null，表示该方向不需要处理
+         * @param x      [source]相对于父容器的[x]值，如果为null，表示该方向不需要处理
+         * @param y      [source]相对于父容器的[y]值，如果为null，表示该方向不需要处理
          * @param source 源
          * @param target 目标
          */
