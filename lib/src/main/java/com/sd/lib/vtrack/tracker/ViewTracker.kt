@@ -102,39 +102,31 @@ interface ViewTracker {
         var view: View?
     }
 
-    interface ViewCallback {
+    abstract class ViewCallback {
         /**
          * 源view变化回调
          */
-        fun onSourceChanged(oldSource: View?, newSource: View?)
+        open fun onSourceChanged(oldSource: View?, newSource: View?) {}
 
         /**
          * 目标view变化回调
          */
-        fun onTargetChanged(oldTarget: View?, newTarget: View?)
+        open fun onTargetChanged(oldTarget: View?, newTarget: View?) {}
 
         /**
-         * [Callback.canUpdate]
+         * 在更新之前触发，返回值true-可以更新；false-不可以，默认true。
          */
-        fun canUpdate(source: View, target: View): Boolean
+        open fun canUpdate(source: View, target: View): Boolean = true
 
         /**
          * [Callback.onUpdate]
          */
-        fun onUpdate(x: Int, y: Int, source: View, target: View)
+        open fun onUpdate(x: Int, y: Int, source: View, target: View) {}
     }
 
-    abstract class Callback : ViewCallback {
-        override fun onSourceChanged(oldSource: View?, newSource: View?) {}
-        override fun onTargetChanged(oldTarget: View?, newTarget: View?) {}
-        override fun canUpdate(source: View, target: View): Boolean {
-            return true
-        }
-
-        override fun onUpdate(x: Int, y: Int, source: View, target: View) {}
-
+    abstract class Callback : ViewCallback() {
         /**
-         * 在更新追踪信息之前会调用此方法来决定可不可以更新，默认true-可以更新
+         * 在更新之前触发，返回值true-可以更新；false-不可以，默认true。
          *
          * @param source 源
          * @param target 目标
