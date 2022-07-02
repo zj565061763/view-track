@@ -31,13 +31,14 @@ abstract class ViewTreeObserverUpdater : BaseViewUpdater() {
 
     final override fun startImpl(view: View): Boolean {
         val observer = view.viewTreeObserver ?: return false
-        if (observer.isAlive) {
+        return if (observer.isAlive) {
             unregister(observer)
             register(observer)
             hasRegister = true
-            return true
+            true
+        } else {
+            false
         }
-        return false
     }
 
     final override fun stopImpl(view: View) {
